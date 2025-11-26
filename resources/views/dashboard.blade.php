@@ -2,7 +2,21 @@
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-gray-900">
             @auth
-                ¡Bienvenido{{ Auth::user()->gender === 'female' ? 'a' : 'o' }}, {{ Auth::user()->name }}!
+                @php
+                    $gender = Auth::user()->gender;
+                    $isFemale = strtolower($gender) === 'femenino' || strtolower($gender) === 'female';
+                    $isDentist = auth()->user()->isDentist();
+
+                    $title = '';
+                    $name = Auth::user()->name;
+
+                    // Agregar título si es dentista
+                    if ($isDentist) {
+                        $title = $isFemale ? 'Dra. ' : 'Dr. ';
+                    }
+                @endphp
+
+                ¡Bienvenid{{ $isFemale ? 'a' : 'o' }}, {{ $title }}{{ $name }}!
             @else
                 Dashboard
             @endauth
@@ -370,7 +384,12 @@
                                         </svg>
                                     </div>
                                     <div>
-                                        <p class="font-medium text-gray-900">Dr. {{ $appointment->dentist->name }}</p>
+                                        @php
+                                            $dentistGender = $appointment->dentist->gender;
+                                            $dentistIsFemale = strtolower($dentistGender) === 'femenino' || strtolower($dentistGender) === 'female';
+                                            $dentistTitle = $dentistIsFemale ? 'Dra. ' : 'Dr. ';
+                                        @endphp
+                                        <p class="font-medium text-gray-900">{{ $dentistTitle }}{{ $appointment->dentist->name }}</p>
                                         <p class="text-sm text-gray-500">
                                             {{ $appointment->appointment_date->format('M d, Y') }} - {{ date('h:i A', strtotime($appointment->appointment_time)) }}
                                         </p>

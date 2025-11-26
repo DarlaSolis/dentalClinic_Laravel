@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -18,7 +19,8 @@ class User extends Authenticatable
         'role_id',
         'is_active',
         'phone',
-        'address'
+        'address',
+        'gender' // Agregar este campo
     ];
 
     protected $hidden = [
@@ -39,6 +41,22 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Relación con las citas donde el usuario es paciente
+     */
+    public function appointmentsAsPatient(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'patient_id');
+    }
+
+    /**
+     * Relación con las citas donde el usuario es dentista
+     */
+    public function appointmentsAsDentist(): HasMany
+    {
+        return $this->hasMany(Appointment::class, 'dentist_id');
     }
 
     // Métodos de verificación de roles
@@ -80,5 +98,38 @@ class User extends Authenticatable
     public function scopeByRole($query, $roleId)
     {
         return $query->where('role_id', $roleId);
+    }
+
+    // Métodos para género
+    public function isFemale(): bool
+    {
+        return strtolower($this->gender) === 'femenino' || strtolower($this->gender) === 'female';
+    }
+
+    public function isMale(): bool
+    {
+        return strtolower($this->gender) === 'masculino' || strtolower($this->gender) === 'male';
+    }
+
+    /**
+     * Obtener el título profesional (solo para dentistas)
+     */
+    public function getProfessionalTitleAttribute(): string
+    {
+        if ($this->isDentist()) {
+            return $this->isFemale() ? 'Dra.' : 'Dr.';
+        }
+        return '';
+    }
+
+    /**
+     * Obtener el nombre con título profesional si es dentista
+     */
+    public function getFullNameWithTitleAttribute(): string
+    {
+        if ($this->isDentist()) {
+            return $this->professional_title . ' ' . $this->name;
+        }
+        return $this->name;
     }
 }

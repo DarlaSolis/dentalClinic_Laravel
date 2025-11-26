@@ -3,8 +3,9 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "dev": "vite",
         "build": "vite build",
-        "dev": "vite"
+        "watch": "vite build --watch"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
@@ -19,6 +20,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "@fortawesome/fontawesome-free": "^7.1.0"
+        "@fortawesome/fontawesome-free": "^7.1.0",
+        "fullcalendar": "^5.11.3"
     }
 }
